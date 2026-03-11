@@ -9,7 +9,7 @@ class Matrix
   private:
     int _rows {};
     int _columns {};
-    T** _elements; // TODO: replace with T
+    T** _elements; 
 
     void initElements()
     {
@@ -44,11 +44,23 @@ class Matrix
     {
       return this->_columns;
     }
-    // DEV NOTE: Returning the raw pointer may be bad practice; seems to nullify the 
-    // private access on member _elements, allowing direct data access/manipulation
+    // Returns a deep-copied array. Since this is meant to be a read-only
+    // function, the direct address of the _elements array should not be given.
     T** getElements()
     {
-      return this->_elements;
+      // Construct lookup pointers for return array
+      T* p1 = (T*)calloc(_rows*_columns, sizeof(T));
+      T** outElements = (T**)calloc(_rows, sizeof(T*));
+      // Initialize pointers for each row
+      for(int i = 0; i < _rows; i++)
+        outElements[i] = p1 + i*_columns;
+
+      for(int i = 0; i < _rows; i++)
+      {
+        for(int j = 0; j < _columns; j++)
+          outElements[i][j] = _elements[i][j];
+      }
+      return outElements;
     }
     // setters
     void setRows(int rows)
