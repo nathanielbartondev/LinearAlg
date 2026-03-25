@@ -1,7 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #ifndef LINEARALG_H
 #define LINEARALG_H
+
+using namespace std;
 
 // Class Matrix: Represents a matrix of numbers (doubles) upon which various operations can be 
 // performed.
@@ -18,10 +21,10 @@ class Matrix
     {
       if(_rows < 2 || _columns < 2)
       {
-        std::cout << "ERROR: Invalid Row or Column value. "
+        cout << "ERROR: Invalid Row or Column value. "
           << "Matrix elements could not be initialized."
-          << std::endl;
-        std::exit(1);
+          << endl;
+        exit(1);
       }
       // Allocate space for elements. Use of nested pointers allows for dynamic memory
       // allocation at object initialization.
@@ -46,10 +49,10 @@ class Matrix
       // If fewer rows/cols are required, existing primitive types can be used instead.
       if(rows < 2 || cols < 2)
       {
-        std::cout << "ERROR: Invalid Row or Column value. "
+        cout << "ERROR: Invalid Row or Column value. "
           << "Matrix object could not be constructed."
-          << std::endl;
-        std::exit(1);
+          << endl;
+        exit(1);
       }
 
       _rows = rows;
@@ -133,17 +136,29 @@ class Matrix
 
 
     // UTILITY & DEBUG
-    // Prints matrix elements to the terminal.
-    void printElements()
+    // Prints matrix elements to the terminal, padding each element with trailing spaces.
+    void printElements(int padding = 6)
     {
       for(int i = 0; i < _rows; i++)
       {
+        if(i == 0) cout << "/ ";
+        else if(i == _rows-1) cout << "\\ ";
+        else cout << "| ";
+        
         for(int j = 0; j < _columns; j++)
-          std::cout << _elements[i][j] << " ";
-        std::cout << std::endl;
+        {
+          cout << setw(padding) << left;
+          cout << _elements[i][j];
+        }
+
+        if(i == 0) cout << " \\";
+        else if(i == _rows-1) cout << " /";
+        else cout << " |";
+
+        cout << endl;
       }
-      std::cout << std::endl;
     }
+
     //void printObjectInfo();
 };
 
@@ -190,10 +205,10 @@ class Vec2D
       // This scheme will only be used for fatal errors.
       if(index >= _dimensions || index < 0)
       {
-        std::cout << "ERROR: getElement() could not retrieve element from vector. "
+        cout << "ERROR: getElement() could not retrieve element from vector. "
           << "Index out of bounds." 
-          << std::endl;
-        std::exit(1);
+          << endl;
+        exit(1);
       }
       return _elements[index];
     }
@@ -204,7 +219,7 @@ class Vec2D
     double getMagnitude()
     {
       // Perform Pythagorean calculation to obtain 2D vector's magnitude
-      return std::sqrt((_elements[0]*_elements[0]) + (_elements[1]*_elements[1]));
+      return sqrt((_elements[0]*_elements[0]) + (_elements[1]*_elements[1]));
     }
     
     // SETTERS
@@ -218,9 +233,9 @@ class Vec2D
     {
       if(index >= _dimensions || index < 0)
       {
-        std::cout << "ERROR: setElement() failed. Provided index was out of bounds."
-          << std::endl;
-        std::exit(1);
+        cout << "ERROR: setElement() failed. Provided index was out of bounds."
+          << endl;
+        exit(1);
       }
       _elements[index] = elem;
     }
@@ -317,24 +332,37 @@ class Vec2D
     
     // MISC UTILITY
 
-    // Displays elements of this vector to the screen
-    void printElements()
+    // Displays elements of this vector to the screen, left-padded by the number of input
+    // whitespace chars (5 by default)
+    void printElements(int padding = 6)
     {
-      std::cout << "{ ";
+      cout << endl; 
       for(int i = 0; i < _dimensions; i++)
       {
-        std::cout << _elements[i] << " ";
+        // Fancy left brace
+        if(i == 0) cout << "/ ";
+        else if(i == _dimensions-1) cout << "\\ ";
+        else cout << "| ";
+
+        cout << setw(padding) << left;
+        cout << _elements[i];
+
+        // Fancy right brace
+        if(i == 0) cout << " \\";
+        else if(i == _dimensions-1) cout << " /";
+        else cout << " |";
+
+        cout << endl;
       }
-      std::cout << "}" << std::endl;
     }
     // DEBUG FUNCTION -- Prints all member values for this vector object.
     void printObjectInfo()
     {
-      std::cout << "Vec2D Object Info\n"
+      cout << "Vec2D Object Info\n"
         << "Dimensions: " << _dimensions << "\n"
         << "Elements:   ";
       printElements();
-      std::cout << "Magnitude: " << getMagnitude() << std::endl;
+      cout << "Magnitude: " << getMagnitude() << endl;
     }
 };
 #endif
