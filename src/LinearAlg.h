@@ -1,37 +1,39 @@
 #include <iostream>
 #include <cmath>
-//#include <typeinfo>
 #ifndef LINEARALG_H
 #define LINEARALG_H
 
-// Class Matrix: Represents a matrix of numbers (double) upon which various operations can be 
+// Class Matrix: Represents a matrix of numbers (doubles) upon which various operations can be 
 // performed.
 class Matrix
 {
   private:
+    // FIELDS
     int _rows {};
     int _columns {};
     double** _elements; 
 
+    // Initializes the 2D array representing the elements in this matrix. Internal use only.
     void initElements()
     {
-      // Check if _rows and _columns are valid values
-      if(_rows <= 0 || _columns <= 0)
+      if(_rows < 2 || _columns < 2)
       {
         std::cout << "ERROR: Invalid Row or Column value. "
           << "Matrix elements could not be initialized."
           << std::endl;
+        std::exit(1);
       }
       // Allocate space for elements. Use of nested pointers allows for dynamic memory
       // allocation at object initialization.
-      double* p1 = (double*)calloc(_rows*_columns, sizeof(double));
+      double* pRow = (double*)calloc(_rows*_columns, sizeof(double));
       _elements = (double**)calloc(_rows, sizeof(double*));
       // Initialize pointers for each row
       for(int i = 0; i < _rows; i++)
-        _elements[i] = p1 + i*_columns;
+        _elements[i] = pRow + i*_columns;
     }
 
   public:
+    // CONSTRUCTORS
     Matrix()
     {
       _rows = 2;
@@ -40,11 +42,22 @@ class Matrix
     }
     Matrix(int rows, int cols)
     {
+      // Matrix objects must have a minimum of 2 rows and 2 columns.
+      // If fewer rows/cols are required, existing primitive types can be used instead.
+      if(rows < 2 || cols < 2)
+      {
+        std::cout << "ERROR: Invalid Row or Column value. "
+          << "Matrix object could not be constructed."
+          << std::endl;
+        std::exit(1);
+      }
+
       _rows = rows;
       _columns = cols;
       initElements();
     }
-    // getters
+
+    // GETTERS
     int getRows()
     {
       return _rows;
@@ -54,7 +67,7 @@ class Matrix
       return _columns;
     }
     // Returns a deep-copied array. Since this is meant to be a read-only
-    // function, the direct address of the _elements array should not be given.
+    // function, the direct address of the _elements array is not given.
     double** getElements()
     {
       // Construct lookup pointers for return array
@@ -71,13 +84,15 @@ class Matrix
       }
       return outElements;
     }
+    // Retrieves an element at the given row/column indices
     double getElement(int irow, int icol)
     {
       return _elements[irow][icol];
     }
+    
+    // SETTERS
     // Copies the elements of one matrix object to another.
-    // Input matrix must be of equal size to the calling matrix, and elements must be of the
-    // same numeric type.
+    // Input matrix must be of equal dimensions to the calling matrix.
     void setElements(Matrix* ref)
     {
       for(int i = 0; i < _rows; i++)
@@ -87,14 +102,19 @@ class Matrix
       }
     }
     // Sets an element in this matrix at the specified row/col index (abbreviated irow and icol)
-    // to the given value
+    // to the given value.
     void setElement(int irow, int icol, double value)
     {
       _elements[irow][icol] = value;
     }
+
+    // DESTRUCTIVE OPERATIONS:
+    // These functions are destructive, as they directly alter the elements of this matrix.
+    // All destructive functions' names are prepended with "dst_".
+    //
     // Adds the input matrix to the calling matrix.
-    // Matrices must have equivalent dimensions and element type.
-    void add(Matrix* operand)
+    // Input matrix must be of equal dimensions to the calling matrix.
+    void dst_add(Matrix* operand)
     {
       for(int i = 0; i < _rows; i++)
       {
@@ -102,9 +122,18 @@ class Matrix
           _elements[i][j] += operand->getElement(i, j);
       }
     }
-    //void multBy(Matrix operand);
-    //void scale(double scalar);
+    //void dst_multBy(Matrix operand);
+    //void dst_scale(double scalar);
+   
+    // NON-DESTRUCTIVE OPERATIONS:
+    // These functions are identical in purpose to their destructive counterparts, but
+    // instead of operating directly on the elements of this matrix, they operate on and 
+    // return a copy of this matrix object, thus preserving the original object's data for 
+    // later use. All non-destructive functions' names are prepended with "ndst_".
 
+
+    // UTILITY & DEBUG
+    // Prints matrix elements to the terminal.
     void printElements()
     {
       for(int i = 0; i < _rows; i++)
@@ -122,9 +151,12 @@ class Matrix
 class Vec2D
 {
   private:
+    // FIELDS
     double* _elements;
+    // vector dimensions stored as const value for better maintainability
     const int _dimensions = 2;
   public:
+    // CONSTRUCTORS
     Vec2D()
     {
       _elements = (double*)calloc(_dimensions, sizeof(double));
@@ -137,10 +169,8 @@ class Vec2D
       _elements[0] = x;
       _elements[1] = y;
     }
-    // GETTERS:
-    // These functions retrieve or otherwise calculate certain information about this
-    // vector object.
 
+    // GETTERS
     // Get all elements of this vector object.
     // Returns a deep-copied array to prevent direct access to vector elements
     double* getElements()
@@ -167,21 +197,17 @@ class Vec2D
       }
       return _elements[index];
     }
-    // Getting vector dimensions in this way enforces reference to same
-    // value in memory across all scopes, and (redundantly) ensures _dimensions is not altered.
     int getDimensions()
     {
       return _dimensions;
     }
-    
     double getMagnitude()
     {
-      // Perform Pythagorean calculation to obtain 2D vector's magnitude. All values
-      // are typecast to double to avoid rounding/truncation issues.
-      return std::sqrt((_elements[0]*_elements[0]) + 
-          (_elements[1]*_elements[1]));
+      // Perform Pythagorean calculation to obtain 2D vector's magnitude
+      return std::sqrt((_elements[0]*_elements[0]) + (_elements[1]*_elements[1]));
     }
-
+    
+    // SETTERS
     void setElements(Vec2D* ref)
     {
       for(int i = 0 ; i < _dimensions; i++)
@@ -199,7 +225,7 @@ class Vec2D
       _elements[index] = elem;
     }
 
-    // DESTRUCTIVE OPERATIONS
+    // DESTRUCTIVE OPERATIONS:
     // These functions are destructive to the vector object, as they each operate directly
     // on member _elements. All destructive functions' names are prepended with "dst_".
 
