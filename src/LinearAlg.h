@@ -11,7 +11,7 @@ using namespace std;
 class Matrix
 {
   private:
-    // FIELDS
+// FIELDS
     int _rows {};
     int _columns {};
     double** _elements; 
@@ -34,9 +34,33 @@ class Matrix
       for(int i = 0; i < _rows; i++)
         _elements[i] = pRow + i*_columns;
     }
+// SETTERS
+// DEV NOTE: May not need these, holding onto them for now
+/*    void setRows(int rows)
+    {
+      if(rows < 2) 
+      {
+        cout << "ERROR: Call to Matrix.setRows() failed. "
+          << "Input 'rows' must be greater than or equal to 2."
+          << endl;
+        exit(1);
+      }
+      _rows = rows;
+    }
+    void setColumns(int cols)
+    {
+      if(cols < 2) 
+      {
+        cout << "ERROR: Call to Matrix.setColumns() failed. "
+          << "Input 'cols' must be greater than or equal to 2."
+          << endl;
+        exit(1);
+      }
+      _cols = cols;
+    }*/
 
   public:
-    // CONSTRUCTORS
+// CONSTRUCTORS
     Matrix()
     {
       _rows = 2;
@@ -60,7 +84,7 @@ class Matrix
       initElements();
     }
 
-    // GETTERS
+// GETTERS
     int getRows()
     {
       return _rows;
@@ -93,7 +117,7 @@ class Matrix
       return _elements[irow][icol];
     }
     
-    // SETTERS
+// SETTERS
     // Copies the elements of one matrix object to another.
     // Input matrix must be of equal dimensions to the calling matrix.
     void setElements(Matrix* ref)
@@ -111,7 +135,7 @@ class Matrix
       _elements[irow][icol] = value;
     }
 
-    // DESTRUCTIVE OPERATIONS:
+// DESTRUCTIVE OPERATIONS:
     // These functions are destructive, as they directly alter the elements of this matrix.
     // All destructive functions' names are prepended with "dst_".
     //
@@ -125,17 +149,76 @@ class Matrix
           _elements[i][j] += operand->getElement(i, j);
       }
     }
-    //void dst_multBy(Matrix operand);
-    //void dst_scale(double scalar);
+    // Multiplies this matrix (1st operand) by the input matrix (2nd operand).
+    void dst_multBy(Matrix* operand)
+    {
+      if(_columns != operand->getRows())
+      {
+        cout << "ERROR: dst_multBy(): Matrix multiplication failed. "
+          << "Number of columns in calling matrix must be equal to "
+          << "number of rows in operand matrix." << endl;
+        exit(1);
+      }
+      // Some of these values are altered before the actual multiplication, but are
+      // still required for said multiplication, so they are saved into local variables first
+      int thisCols = _columns;
+      int opCols = operand->getColumns();
+
+      // Elements of this matrix must be copied to a temporary buffer, as
+      // field _elements must be re-initialized to accommodate the new dimensions
+      // of the product, which may differ from this matrix's original dimensions
+      double** thisElements = getElements();
+      _columns = opCols;
+      initElements();
+      dst_zero();
+      
+      // Output will have i rows and j columns:
+      // > i is the number of rows in operand 1
+      // > j is the number of columns in operand 2 (assigned to this object above)
+      // DEV NOTE: Try to find a way to do this without a triple for loop, ffs
+      for(int i = 0; i < _rows; i++)
+      {
+        for(int j = 0; j < _columns; j++)
+        {
+          // Number of terms to sum per element in output
+          // thisCols or opRows could be checked as upper bound; they are equal
+          for(int k = 0; k < thisCols; k++)
+          {
+            _elements[i][j] += thisElements[i][k] * operand->getElement(k, j);
+          }
+        }
+      }
+
+    }
+    // Scales every element in this matrix by the input scalar.
+    void dst_scale(double scalar)
+    {
+      for(int i = 0; i < _rows; i++)
+      {
+        for(int j = 0; j < _columns; j++)
+          _elements[i][j] *= scalar;
+      }
+    }
+    // Sets all elements of this matrix to 0
+    void dst_zero()
+    {
+      for(int i = 0; i < _rows; i++)
+      {
+        for(int j = 0; j < _columns; j++)
+        {
+          _elements[i][j] = 0;
+        }
+      }
+    }
    
-    // NON-DESTRUCTIVE OPERATIONS:
+// NON-DESTRUCTIVE OPERATIONS:
     // These functions are identical in purpose to their destructive counterparts, but
     // instead of operating directly on the elements of this matrix, they operate on and 
-    // return a copy of this matrix object, thus preserving the original object's data for 
+    // return a separate matrix object, thus preserving the original object's data for 
     // later use. All non-destructive functions' names are prepended with "ndst_".
 
 
-    // UTILITY & DEBUG
+// UTILITY & DEBUG
     // Prints matrix elements to the terminal, padding each element with trailing spaces.
     void printElements(int padding = 6)
     {
@@ -166,12 +249,12 @@ class Matrix
 class Vec2D
 {
   private:
-    // FIELDS
+// FIELDS
     double* _elements;
     // vector dimensions stored as const value for better maintainability
     const int _dimensions = 2;
   public:
-    // CONSTRUCTORS
+// CONSTRUCTORS
     Vec2D()
     {
       _elements = (double*)calloc(_dimensions, sizeof(double));
@@ -185,7 +268,7 @@ class Vec2D
       _elements[1] = y;
     }
 
-    // GETTERS
+// GETTERS
     // Get all elements of this vector object.
     // Returns a deep-copied array to prevent direct access to vector elements
     double* getElements()
@@ -222,7 +305,7 @@ class Vec2D
       return sqrt((_elements[0]*_elements[0]) + (_elements[1]*_elements[1]));
     }
     
-    // SETTERS
+// SETTERS
     void setElements(Vec2D* ref)
     {
       for(int i = 0 ; i < _dimensions; i++)
@@ -240,9 +323,9 @@ class Vec2D
       _elements[index] = elem;
     }
 
-    // DESTRUCTIVE OPERATIONS:
-    // These functions are destructive to the vector object, as they each operate directly
-    // on member _elements. All destructive functions' names are prepended with "dst_".
+// DESTRUCTIVE OPERATIONS:
+    // These functions are destructive to this vector object, as they each operate directly
+    // on its elements. All destructive functions' names are prepended with "dst_".
 
     // Adds a scalar value to this vector. Scalars will always be added to all elements
     // of the vector.
@@ -290,10 +373,10 @@ class Vec2D
       return result;
     }
 
-    // NON-DESTRUCTIVE OPERATIONS:
+// NON-DESTRUCTIVE OPERATIONS:
     // These functions are identical in purpose to their destructive counterparts, but
-    // instead of operating directly on the _elements member of the vector object, they
-    // operate on and return a copy of the vector object, thus preserving the original
+    // instead of operating directly on the elements of this vector object, they
+    // operate on and return a separate vector object, thus preserving the original
     // object's data for later use. All non-destructive functions' names are prepended
     // with "ndst_".
     
@@ -330,7 +413,7 @@ class Vec2D
         result->setElement(i, result->getElement(i) + operand->getElement(i));
     }
     
-    // MISC UTILITY
+// UTILITY & DEBUG
 
     // Displays elements of this vector to the screen, left-padded by the number of input
     // whitespace chars (5 by default)
@@ -355,7 +438,7 @@ class Vec2D
         cout << endl;
       }
     }
-    // DEBUG FUNCTION -- Prints all member values for this vector object.
+    // Prints all field values for this vector object.
     void printObjectInfo()
     {
       cout << "Vec2D Object Info\n"
