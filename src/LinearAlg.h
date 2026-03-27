@@ -19,6 +19,8 @@ class Matrix
     // Initializes the 2D array representing the elements in this matrix. Internal use only.
     void initElements()
     {
+      // Matrix objects must have a minimum of 2 rows and 2 columns.
+      // Any fewer, and they would just be glorified 1D arrays.
       if(_rows < 2 || _columns < 2)
       {
         cout << "ERROR: Invalid Row or Column value. "
@@ -61,16 +63,8 @@ class Matrix
 
   public:
 // CONSTRUCTORS
-    Matrix()
+    Matrix(int rows = 2, int cols = 2)
     {
-      _rows = 2;
-      _columns = 2;
-      initElements();
-    }
-    Matrix(int rows, int cols)
-    {
-      // Matrix objects must have a minimum of 2 rows and 2 columns.
-      // If fewer rows/cols are required, existing primitive types can be used instead.
       if(rows < 2 || cols < 2)
       {
         cout << "ERROR: Invalid Row or Column value. "
@@ -122,6 +116,13 @@ class Matrix
     // Input matrix must be of equal dimensions to the calling matrix.
     void setElements(Matrix* ref)
     {
+      if(ref->getRows() != _rows || ref->getColumns() != _columns)
+      {
+        cout << "ERROR: Matrix.setElements() failed. Dimensions of source matrix "
+          << "must equal dimensions of destination matrix." << endl;
+        exit(1);
+      }
+
       for(int i = 0; i < _rows; i++)
       {
         for(int j = 0; j < _columns; j++)
@@ -222,6 +223,7 @@ class Matrix
     // Prints matrix elements to the terminal, padding each element with trailing spaces.
     void printElements(int padding = 6)
     {
+      cout << endl;
       for(int i = 0; i < _rows; i++)
       {
         if(i == 0) cout << "/ ";
@@ -242,7 +244,14 @@ class Matrix
       }
     }
 
-    //void printObjectInfo();
+    void printObjectInfo(int elemPadding = 6)
+    {
+      cout << "[Matrix Object Info]" << endl;
+      cout << "Rows:     " << _rows << endl;
+      cout << "Columns:  " << _columns << endl;
+      cout << "Elements:";
+      printElements(elemPadding);
+    }
 };
 
 // Class Vec2D: Represents 2D vectors and their common mathemetical operations.
@@ -251,17 +260,15 @@ class Vec2D
   private:
 // FIELDS
     double* _elements;
-    // vector dimensions stored as const value for better maintainability
-    const int _dimensions = 2;
+    // Vector dimensions stored as constant value for better maintainability.
+    // However the "const" keyword is not used due to all C++ class members being implicitly
+    // assignable in certain contexts (i.e. re-initializing object with new constructor call),
+    // which leads to compiler errors.
+    int _dimensions = 2;
+
   public:
 // CONSTRUCTORS
-    Vec2D()
-    {
-      _elements = (double*)calloc(_dimensions, sizeof(double));
-      _elements[0] = 0;
-      _elements[1] = 0;
-    }
-    Vec2D(double x, double y)
+    Vec2D(double x = 0, double y = 0)
     {
       _elements = (double*)calloc(_dimensions, sizeof(double));
       _elements[0] = x;
@@ -288,9 +295,7 @@ class Vec2D
       // This scheme will only be used for fatal errors.
       if(index >= _dimensions || index < 0)
       {
-        cout << "ERROR: getElement() could not retrieve element from vector. "
-          << "Index out of bounds." 
-          << endl;
+        cout << "ERROR: Vector.getElement() failed. Input index out of bounds." << endl;
         exit(1);
       }
       return _elements[index];
@@ -380,16 +385,6 @@ class Vec2D
     // object's data for later use. All non-destructive functions' names are prepended
     // with "ndst_".
     
-    // Normalizes a copy of this vector object, provided as input arg "result"
-    void ndst_normalize(Vec2D* result)
-    {
-      result->setElements(this);
-
-      double magnitude = getMagnitude();
-
-      for(int i = 0; i < _dimensions; i++)
-        result->setElement(i, result->getElement(i) / magnitude);
-    }
 
     void ndst_addScalar(Vec2D* result, double scalar)
     {
@@ -412,11 +407,21 @@ class Vec2D
       for(int i = 0; i < _dimensions; i++)
         result->setElement(i, result->getElement(i) + operand->getElement(i));
     }
+    // Normalizes a copy of this vector object, provided as input arg "result"
+    void ndst_normalize(Vec2D* result)
+    {
+      result->setElements(this);
+
+      double magnitude = getMagnitude();
+
+      for(int i = 0; i < _dimensions; i++)
+        result->setElement(i, result->getElement(i) / magnitude);
+    }
     
 // UTILITY & DEBUG
 
     // Displays elements of this vector to the screen, left-padded by the number of input
-    // whitespace chars (5 by default)
+    // whitespace chars (6 by default)
     void printElements(int padding = 6)
     {
       cout << endl; 
@@ -439,12 +444,12 @@ class Vec2D
       }
     }
     // Prints all field values for this vector object.
-    void printObjectInfo()
+    void printObjectInfo(int elemPadding = 6)
     {
-      cout << "Vec2D Object Info\n"
-        << "Dimensions: " << _dimensions << "\n"
-        << "Elements:   ";
-      printElements();
+      cout << "[Vec2D Object Info]" << endl;
+      cout << "Dimensions: " << _dimensions << endl;
+      cout << "Elements:   ";
+      printElements(elemPadding);
       cout << "Magnitude: " << getMagnitude() << endl;
     }
 };
