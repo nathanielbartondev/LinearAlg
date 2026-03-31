@@ -360,7 +360,11 @@ class Vec2D
       for(int i = 0; i < _dimensions; i++)
         _elements[i] = _elements[i] / magnitude;
     }
-
+    
+    // Calculates the dot product between this vector and the given operand vector.
+    // DEV NOTE: Dot product convention seems to also accommodate calculation with
+    // non-normalized vectors. Investigate whether returning a non-normalized result is
+    // worthwhile (in addition to current normalized result).
     double dotProd(Vec2D* operand)
     {
       // Magnitude of this object and operand object, respectively
@@ -384,7 +388,6 @@ class Vec2D
     // operate on and return a separate vector object, thus preserving the original
     // object's data for later use. All non-destructive functions' names are prepended
     // with "ndst_".
-    
 
     void ndst_addScalar(Vec2D* result, double scalar)
     {

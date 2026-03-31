@@ -123,31 +123,112 @@ int main()
 
   cout << "-- Vector Element Setting (Reference Vector)" << endl;
   Vec2D vector2;
-  cout << "Before:" << endl;
+  cout << "-- Before:" << endl;
   vector2.printObjectInfo();
   vector2.setElements(&vector1);
-  cout << "After:" << endl;
+  cout << "-- After:" << endl;
   vector2.printObjectInfo();
   cout << endl;
 
-  //cout << "-- Vector Destructive Scalar Add" << endl;
+  cout << "-- Vector Destructive Scalar Add" << endl;
+  scalar = 10;
+  vector1.printElements();
+  cout << "\n+\n\n";
+  cout << scalar << endl;
+  vector1.dst_addScalar(scalar);
+  cout << EQ_RESULT_BAR;
+  vector1.printElements();
+  cout << endl;
 
-  //cout << "-- Vector Destructive Scale" << endl;
+  cout << "-- Vector Destructive Scale" << endl;
+  scalar = 0.1;
+  vector1.printElements();
+  cout << "\n*\n\n";
+  cout << scalar << endl;
+  vector1.dst_scale(scalar);
+  cout << EQ_RESULT_BAR;
+  vector1.printElements();
+  cout << endl;
   
-  //cout << "-- Vector Destructive Add" << endl;
+  cout << "-- Vector Destructive Add" << endl;
+  vector1.printElements();
+  cout << "\n+\n";
+  vector2.setElement(0, 7.5);
+  vector2.setElement(1, 6);
+  vector2.printElements();
+  vector1.dst_add(&vector2);
+  cout << EQ_RESULT_BAR;
+  vector1.printElements();
+  cout << endl;
   
-  //cout << "-- Vector Destructive Normalize" << endl;
+  cout << "-- Vector Destructive Normalize" << endl;
+  cout << "-- Before:" << endl;
+  vector1.printObjectInfo();
+  vector1.dst_normalize();
+  cout << "-- After:" << endl;
+  vector1.printObjectInfo();
+  cout << endl;
 
-  //cout << "-- Vector Dot Product" << endl;
+  cout << "-- Vector Dot Product (normalized)" << endl;
+  vector1.setElement(0, 3);
+  vector1.setElement(1, 4);
+  vector1.printElements();
+  cout << "\n* (DOT)" << endl;
+  vector2.setElement(0, 5);
+  vector2.setElement(1, 5);
+  vector2.printElements();
+  double result = vector1.dotProd(&vector2);
+  cout << EQ_RESULT_BAR;
+  cout << "\n" << result << "\n\n";
 
-  //cout << "-- Vector Non-Destructive Scalar Add" << endl;
 
-  //cout << "-- Vector Non-Destructive Scale" << endl;
+  // Vec2D: Non-destructive tests
+  Vec2D ndst_vector_result;
 
-  //cout << "-- Vector Non-Destructive Add" << endl;
+  cout << "-- Vector Non-Destructive Scalar Add" << endl;
+  vector1.printElements();
+  cout << "\n+\n\n";
+  scalar = 2;
+  cout << scalar << endl;
+  vector1.ndst_addScalar(&ndst_vector_result, scalar);
+  cout << EQ_RESULT_BAR;
+  ndst_vector_result.printElements();
+  cout << "-- Operand 1 Vector Object (preserved):" << endl;
+  vector1.printObjectInfo();
+  cout << endl;
+
+  cout << "-- Vector Non-Destructive Scale" << endl;
+  vector1.printElements();
+  cout << "\n*\n\n";
+  scalar = 5;
+  cout << scalar << endl;
+  vector1.ndst_scale(&ndst_vector_result, scalar);
+  cout << EQ_RESULT_BAR;
+  ndst_vector_result.printElements();
+  cout << "-- Operand 1 Vector Object (preserved):" << endl;
+  vector1.printObjectInfo();
+  cout << endl;
+
+  cout << "-- Vector Non-Destructive Add" << endl;
+  vector1.printElements();
+  cout << "\n+\n";
+  vector2.printElements();
+  vector1.ndst_add(&ndst_vector_result, &vector2);
+  cout << EQ_RESULT_BAR;
+  ndst_vector_result.printElements();
+  cout << "-- Operand 1 Vector Object (preserved):" << endl;
+  vector1.printObjectInfo();
+  cout << endl;
   
-  //cout << "-- Vector Non-Destructive Normalize" << endl;
-
+  cout << "-- Vector Non-Destructive Normalize" << endl;
+  cout << "-- Before:" << endl;
+  vector1.printObjectInfo();
+  vector1.ndst_normalize(&ndst_vector_result);
+  cout << "-- After:" << endl;
+  ndst_vector_result.printObjectInfo();
+  cout << "-- Operand 1 Vector Object (preserved):" << endl;
+  vector1.printObjectInfo();
+  cout << endl;
 
   cout << "-- ALL TESTS COMPLETE --" << endl;
   return 0;
